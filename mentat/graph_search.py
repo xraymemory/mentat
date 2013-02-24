@@ -1,4 +1,4 @@
-from scipy.special import *
+#from scipy.special import *
 from ConceptNetNode import *
 from graph_search import ConceptNetNode
 
@@ -9,7 +9,7 @@ def get_similarity_score(start, end):
     for node in path:
         print "Node is " + str(node.node_name)
         print "Node weight is " + str(node.weight)
-        edge_score += cbrt(node.weight)
+        edge_score += node.weight ** (1 / 3.0)
     similarity_score = edge_score / (len(path) ** 2)
     return similarity_score
 
