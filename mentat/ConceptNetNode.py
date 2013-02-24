@@ -22,18 +22,25 @@ class ConceptNetNode(object):
     features: a list of three identifiers for features, which are essentially assertions with one of their three components missing.
     surfaceText: the original natural language text that expressed this statement. '''
 
-    def __init__(self, node_name, request=None, convert=False):
+    def __init__(self, node_name, request=None, convert=False, prox_score=0):
         self.node_name = node_name
+        self.score = prox_score
+        self.edges = []
         self.cnet_edges = {}
+
         if request != None:
             self.cnet_response = self.search_solr(request)
         else:
             self.cnet_response = self.search_solr(self.build_request(self.node_name))
+
         if self.cnet_response != {}:
             self.edges = self.create_adjacency_list(self.cnet_response)
             self.create_attrs_from_response(self.cnet_response)
         if convert:
             self.convert_list_to_nodes()
+
+    def __repr__(self):
+        return self.node_name
 
     def create_attrs_from_response(self, response):
         try:
@@ -50,19 +57,15 @@ class ConceptNetNode(object):
 
     def create_adjacency_list(self, cnet_response):
         adjacent_nodes = []
-        edges = {}
         for entry in cnet_response['response']['docs']:
             adjacent_nodes.append(entry['endLemmaString'])
-        lemma = self.node_name.replace('_', ' ')
-        edges[lemma] = adjacent_nodes
-        return edges
+        return adjacent_nodes
 
     def convert_list_to_nodes(self):
-        for key, value in self.edges.iteritems():
-            for lemma in value:
-                search_term = lemma.replace(' ', '_')
-                value = ConceptNetNode(search_term)
-                self.cnet_edges[lemma] = value
+        for lemma in self.edges:
+            search_term = lemma.replace(' ', '_')
+            value = ConceptNetNode(search_term)
+            self.cnet_edges[lemma] = value
 
     def search_solr(self, request_string):
         req = urllib2.Request(request_string)
