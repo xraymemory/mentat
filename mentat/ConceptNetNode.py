@@ -27,6 +27,7 @@ class ConceptNetNode(object):
         self.score = prox_score
         self.edges = []
         self.cnet_edges = {}
+        #print node_name
 
         if request != None:
             self.cnet_response = self.search_solr(request)
@@ -52,8 +53,17 @@ class ConceptNetNode(object):
     def build_request(self, node_name, rows=100, format="json"):
         formatted_name = node_name.replace('_', '+')
         formatted_name = '"' + formatted_name + '"'
+        formatted_name = self._escape_name(formatted_name)
         request = u"http://localhost:8983/solr/select/?q=startLemmaString:{0}&version=2.2&start=0&rows={1}&indent=on&wt={2}".format(formatted_name, rows, format)
         return request
+
+    def _escape_name(self, name):
+        try:
+            start = name.index('&')
+            name = name[:start] + "%26" + name[start + 1:]
+        except:
+            pass
+        return name
 
     def create_adjacency_list(self, cnet_response):
         adjacent_nodes = []

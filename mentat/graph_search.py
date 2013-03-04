@@ -10,7 +10,8 @@ def get_similarity_score(start, end):
     path = bfs(start, end)
     edge_weights = 0.0
     edge_prox = 0.0
-
+    if len(path) == 1:
+        return 1
     for node in path:
         print "Node is " + str(node.node_name)
         print "Node has " + str(len(node.edges)) + " edges"
@@ -18,9 +19,23 @@ def get_similarity_score(start, end):
         print "Node prox is " + str(node.score)
         edge_weights += node.weight ** (1 / 3.0)
         edge_prox += node.score
-
+        print edge_weights
     edge_prox = edge_prox / BASE_PROXIMITY
+    print edge_prox
     similarity_score = edge_weights / ((len(path) ** 2) - edge_prox)
+    return similarity_score
+
+
+def get_sim_score_2(start, end):
+    path = bfs(start, end)
+    edge_weights = 0.0
+    for node in path:
+        '''print "Node is " + str(node.node_name)
+        print "Node has " + str(len(node.edges)) + " edges"
+        print "Node weight is " + str(node.weight)
+        print "Node prox is " + str(node.score)'''
+        edge_weights += node.weight ** (1 / 3.0)
+    similarity_score = edge_weights / ((len(path) ** 2))
     return similarity_score
 
 
@@ -33,7 +48,11 @@ def bfs(start, end):
 
     start_node.score = _inject_initial_proximity(start_node)
 
+    if start == end:
+        return [start_node]
+
     if end_node.startLemmaString in start_node.cnet_edges:
+        end_node.score = (start_node.score / len(start_node.edges)) * RETAIN_AMOUNT
         return [start_node, end_node]
 
     while queue:

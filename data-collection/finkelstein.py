@@ -5,6 +5,7 @@ import sys
 mentat_path = os.path.abspath('../mentat/')
 sys.path.append(mentat_path)
 from graph_search import get_similarity_score as get_scores
+from graph_search import get_sim_score_2
 
 
 input_file = sys.argv[1]
@@ -28,9 +29,14 @@ def _generate_cnet_scores(comparisons):
     node2 = comparisons[1]
     fink_scores = comparisons[2]
     for index in range(len(fink_scores)):
-        print node1[index]
         try:
             print get_scores(node1[index], node2[index])
+        except:
+            print -1
+    print "-----WITHOUT PROX----- \n"
+    for index in range(len(fink_scores)):
+        try:
+            print get_sim_score_2(node1[index], node2[index])
         except:
             print -1
 
