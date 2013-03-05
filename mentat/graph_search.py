@@ -17,7 +17,7 @@ def get_similarity_score(start, end):
         print "Node has " + str(len(node.edges)) + " edges"
         print "Node weight is " + str(node.weight)
         print "Node prox is " + str(node.score)
-        edge_weights += node.weight ** (1 / 3.0)
+        edge_weights += node.weight ** (1 / 2.0)
         edge_prox += node.score
         print edge_weights
     edge_prox = edge_prox / BASE_PROXIMITY

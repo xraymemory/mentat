@@ -84,7 +84,7 @@ class ConceptNetNode(object):
         try:
             f = opener.open(req)
             json_result = json.loads(f.read())
-        except UnicodeEncodeError:
+        except:
             pass
 
         return json_result
