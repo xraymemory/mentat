@@ -3,7 +3,7 @@ from ConceptNetNode import *
 from graph_search import ConceptNetNode
 
 BASE_PROXIMITY = 2000
-RETAIN_AMOUNT = 0.5
+RETAIN_AMOUNT = 0.8
 
 
 def get_similarity_score(start, end):
@@ -13,15 +13,9 @@ def get_similarity_score(start, end):
     if len(path) == 1:
         return 1
     for node in path:
-        print "Node is " + str(node.node_name)
-        print "Node has " + str(len(node.edges)) + " edges"
-        print "Node weight is " + str(node.weight)
-        print "Node prox is " + str(node.score)
-        edge_weights += node.weight ** (1 / 2.0)
+        edge_weights += node.weight ** (1 / 3.0)
         edge_prox += node.score
-        print edge_weights
     edge_prox = edge_prox / BASE_PROXIMITY
-    print edge_prox
     similarity_score = edge_weights / ((len(path) ** 2) - edge_prox)
     return similarity_score
 
@@ -30,16 +24,12 @@ def get_sim_score_2(start, end):
     path = bfs(start, end)
     edge_weights = 0.0
     for node in path:
-        '''print "Node is " + str(node.node_name)
-        print "Node has " + str(len(node.edges)) + " edges"
-        print "Node weight is " + str(node.weight)
-        print "Node prox is " + str(node.score)'''
         edge_weights += node.weight ** (1 / 3.0)
     similarity_score = edge_weights / ((len(path) ** 2))
     return similarity_score
 
 
-def bfs(start, end):
+def bfs(start, end, max_path=3):
     start_node = ConceptNetNode(start, convert=True)
     end_node = ConceptNetNode(end, convert=True)
     visited = []
@@ -57,6 +47,8 @@ def bfs(start, end):
 
     while queue:
         path = queue.pop(0)
+        if len(path) > max_path:
+            return []
         node = path[-1]
 
         try:
@@ -87,4 +79,3 @@ def _inject_initial_proximity(node):
     node.score = initial_prox_score
     remaining_prox = initial_prox_score * RETAIN_AMOUNT
     return remaining_prox
-
