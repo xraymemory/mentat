@@ -6,25 +6,26 @@ BASE_PROXIMITY = 2000
 RETAIN_AMOUNT = 0.8
 
 
-def get_similarity_score(start, end):
-    path = bfs(start, end)
+def get_similarity_score(start, end, max_path=3):
+    path = bfs(start, end, max_path=max_path)
     edge_weights = 0.0
     edge_prox = 0.0
     if len(path) == 1:
         return 1
     for node in path:
-        edge_weights += node.weight ** (1 / 3.0)
+        edge_weights += node.weight ** (1 / 2.0)
         edge_prox += node.score
     edge_prox = edge_prox / BASE_PROXIMITY
     similarity_score = edge_weights / ((len(path) ** 2) - edge_prox)
     return similarity_score
 
 
-def get_sim_score_2(start, end):
-    path = bfs(start, end)
+def get_sim_score_2(start, end, max_path=3):
+    ''' wthout prox score'''
+    path = bfs(start, end, max_path=max_path)
     edge_weights = 0.0
     for node in path:
-        edge_weights += node.weight ** (1 / 3.0)
+        edge_weights += node.weight ** (1 / 2.0)
     similarity_score = edge_weights / ((len(path) ** 2))
     return similarity_score
 
