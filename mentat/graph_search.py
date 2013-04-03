@@ -1,6 +1,6 @@
 #from scipy.special import *
 from ConceptNetNode import *
-from graph_search import ConceptNetNode
+#from graph_search import ConceptNetNode
 
 BASE_PROXIMITY = 2000
 RETAIN_AMOUNT = 0.8
@@ -51,7 +51,6 @@ def bfs(start, end, max_path=3):
         if len(path) > max_path:
             return []
         node = path[-1]
-
         try:
             relative_proximity = node.score / len(node.edges)
         except ZeroDivisionError:
@@ -73,6 +72,31 @@ def bfs(start, end, max_path=3):
                 new_node.convert_list_to_nodes()
                 new_path.append(new_node)
                 queue.append(new_path)
+
+
+def node_rank(cnet_node, damping_factor=0.85, max_iterations=100, min_delta=0.00001):
+    nodes = list(cnet_node.edges)
+    nodes.append(cnet_node.node_name)
+    neighbor_count = len(nodes)
+    min_value = (1.0 - damping_factor) / neighbor_count
+    rank_dict = dict.fromkeys(nodes, 1.0 / neighbor_count)
+
+    for i in xrange(max_iterations):
+        diff = 0
+        for node in nodes:
+            activated_node = ConceptNetNode(node)
+            rank = min_value
+            for referring_node in activated_node.edges:
+                if referring_node not in rank_dict:
+                    rank_dict[referring_node] = 1.0 / neighbor_count
+                rank += damping_factor * rank_dict[referring_node] / len(activated_node.edges)
+            diff += abs(rank_dict[node] - rank)
+            rank_dict[node] = rank
+
+        if diff < min_delta:
+            break
+
+    return rank_dict
 
 
 def _inject_initial_proximity(node):

@@ -26,6 +26,7 @@ class ConceptNetNode(object):
         self.node_name = node_name
         self.score = prox_score
         self.edges = []
+        #converted
         self.cnet_edges = {}
         #print node_name
 
@@ -39,6 +40,8 @@ class ConceptNetNode(object):
             self.create_attrs_from_response(self.cnet_response)
         if convert:
             self.convert_list_to_nodes()
+
+        self.edges = set(self.edges)
 
     def __repr__(self):
         return self.node_name
