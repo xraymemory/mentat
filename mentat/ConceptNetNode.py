@@ -22,7 +22,7 @@ class ConceptNetNode(object):
     features: a list of three identifiers for features, which are essentially assertions with one of their three components missing.
     surfaceText: the original natural language text that expressed this statement. '''
 
-    def __init__(self, node_name, request=None, convert=False, prox_score=0):
+    def __init__(self, node_name, request=None, convert=False, prox_score=0, degree=''):
         self.node_name = node_name
         self.score = prox_score
         self.edges = []
@@ -36,7 +36,7 @@ class ConceptNetNode(object):
             self.cnet_response = self.search_solr(self.build_request(self.node_name))
 
         if self.cnet_response != {}:
-            self.edges = self.create_adjacency_list(self.cnet_response)
+            self.edges = self.create_adjacency_list(self.cnet_response, degree=degree)
             self.create_attrs_from_response(self.cnet_response)
         if convert:
             self.convert_list_to_nodes()
@@ -53,7 +53,7 @@ class ConceptNetNode(object):
         except:
             pass
 
-    def build_request(self, node_name, rows=100, format="json"):
+    def build_request(self, node_name, rows=1000, format="json"):
         formatted_name = node_name.replace('_', '+')
         formatted_name = '"' + formatted_name + '"'
         formatted_name = self._escape_name(formatted_name)
@@ -68,10 +68,14 @@ class ConceptNetNode(object):
             pass
         return name
 
-    def create_adjacency_list(self, cnet_response):
+    def create_adjacency_list(self, cnet_response, degree=''):
         adjacent_nodes = []
+        if degree == '':
+            key = 'endLemmaString'
+        else:
+            key = degree
         for entry in cnet_response['response']['docs']:
-            adjacent_nodes.append(entry['endLemmaString'])
+            adjacent_nodes.append(entry[key])
         return adjacent_nodes
 
     def convert_list_to_nodes(self):
@@ -89,5 +93,4 @@ class ConceptNetNode(object):
             json_result = json.loads(f.read())
         except:
             pass
-
         return json_result

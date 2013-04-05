@@ -73,12 +73,14 @@ def bfs(start, end, max_path=3):
                 new_path.append(new_node)
                 queue.append(new_path)
 
-
+'''
 def node_rank(cnet_node, damping_factor=0.85, max_iterations=100, min_delta=0.00001):
     nodes = list(cnet_node.edges)
     nodes.append(cnet_node.node_name)
+    rank = 0.0
     neighbor_count = len(nodes)
     min_value = (1.0 - damping_factor) / neighbor_count
+    print min_value
     rank_dict = dict.fromkeys(nodes, 1.0 / neighbor_count)
 
     for i in xrange(max_iterations):
@@ -94,9 +96,32 @@ def node_rank(cnet_node, damping_factor=0.85, max_iterations=100, min_delta=0.00
             rank_dict[node] = rank
 
         if diff < min_delta:
+            print "Converged"
             break
 
     return rank_dict
+'''
+
+def node_rank(cnet_node, damping_factor=0.85, rows=1000):
+    formated_name = '''"''' + cnet_node.node_name + '''"'''
+    node_request_string = "http://localhost:8983/solr/select/?q=endLemmaString:{0}&version=2.2&start=0&rows={1}&indent=on&wt={2}".format(formated_name, rows, "json")
+    activated_root_node = ConceptNetNode(cnet_node.node_name, request=node_request_string, degree='startLemmaString')
+    rank = 0.0
+    min_score = 1.0 / len(activated_root_node.edges)
+    for node in activated_root_node.edges:
+        node_name = '''"''' + node + '''"'''
+        try:
+            node_request_string = "http://localhost:8983/solr/select/?q=endLemmaString:{0}&version=2.2&start=0&rows={1}&indent=on&wt={2}".format(node_name, rows, "json")
+            activated_node = ConceptNetNode(node, request=node_request_string, degree='startLemmaString')
+        except UnicodeEncodeError:
+            pass
+        try:
+            weight = activated_node.weight
+            node_score = (weight + damping_factor) / len(activated_node.edges)
+        except:
+            node_score = min_score
+        rank += node_score
+    return rank
 
 
 def _inject_initial_proximity(node):
