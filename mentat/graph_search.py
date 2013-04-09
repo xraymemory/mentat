@@ -73,8 +73,8 @@ def bfs(start, end, max_path=3):
                 new_path.append(new_node)
                 queue.append(new_path)
 
-'''
-def node_rank(cnet_node, damping_factor=0.85, max_iterations=100, min_delta=0.00001):
+
+def node_pagerank(cnet_node, damping_factor=0.85, max_iterations=100, min_delta=0.00001):
     nodes = list(cnet_node.edges)
     nodes.append(cnet_node.node_name)
     rank = 0.0
@@ -100,7 +100,6 @@ def node_rank(cnet_node, damping_factor=0.85, max_iterations=100, min_delta=0.00
             break
 
     return rank_dict
-'''
 
 
 def node_rank(cnet_node, damping_factor=0.85, rows=1000):

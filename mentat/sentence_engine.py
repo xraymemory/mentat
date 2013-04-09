@@ -30,20 +30,15 @@ def compare_sentences(sentence1, sentence2):
     # generate permutations of nodes in list
     for pair in itertools.product(node_list1, node_list2):
         scores.append(get_similarity_score(pair[0], pair[1]))
-    return sum(normalize_scores(scores))
-
-
-def normalize_scores(scores, normalize_height=1):
-    max_score = max(scores)
-    return [score / (max_score * 1.0) * normalize_height for score in scores]
+    return (sum(scores) / (len(node_list1) * len(node_list2)))
 
 
 # gotta find a proper threshold, probably empirically
 def create_node_list(sentence1, sentence2, threshold=0.5):
     node_list1 = []
     node_list2 = []
-    average_rank1 = sum([graph_search.node_rank(word) for word in sentence1])
-    average_rank2 = sum([graph_search.node_rank(word) for word in sentence2])
+    average_rank1 = sum([graph_search.node_rank(word) for word in sentence1]) / len(sentence1)
+    average_rank2 = sum([graph_search.node_rank(word) for word in sentence2]) / len(sentence2)
 
     for word in sentence1:
         if word not in STOPWORDS:
