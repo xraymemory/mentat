@@ -102,6 +102,7 @@ def node_rank(cnet_node, damping_factor=0.85, max_iterations=100, min_delta=0.00
     return rank_dict
 '''
 
+
 def node_rank(cnet_node, damping_factor=0.85, rows=1000):
     formated_name = '''"''' + cnet_node.node_name + '''"'''
     node_request_string = "http://localhost:8983/solr/select/?q=endLemmaString:{0}&version=2.2&start=0&rows={1}&indent=on&wt={2}".format(formated_name, rows, "json")
