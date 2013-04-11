@@ -1,35 +1,46 @@
 from ConceptNetNode import *
 from graph_search import *
-from stopwords import STOPWORDS
 import itertools as it
 import sys
+import string
+
+
+def generate_stopword_list(stopwords):
+    with open(stopwords) as f:
+        words = f.readlines()
+    stoplist = map(lambda s: s.strip(), words)
+    return stoplist
 
 
 def read_sentences_from_file(sentence_file):
     with open(sentence_file) as f:
         lines = f.readlines()
-    return lines
+    clean_lines = map(lambda s: s.strip(), lines)
+    return clean_lines
 
 
 def generate_score_table():
     sentences = read_sentences_from_file(sys.argv[1])
     counter = 0
     for i in xrange(len(sentences)):
-        print "****************** \n"
-        print sentences[counter]
-        print sentences[counter+1]
+        #print "****************** \n"
+        #print sentences[counter]
+        #print sentences[counter+1]
         score = compare_sentences(sentences[counter], sentences[counter+1])
         print score
-        print "*************************** \n"
-        counter += 2
+        #print "*************************** \n"
+        counter += 3
 
 
 def compare_sentences(sentence1, sentence2):
     node_list1, node_list2 = create_node_list(sentence1, sentence2)
     scores = []
     # generate permutations of nodes in list
-    for pair in itertools.product(node_list1, node_list2):
-        scores.append(get_similarity_score(pair[0], pair[1]))
+    for pair in it.product(node_list1, node_list2):
+        try:
+            scores.append(get_similarity_score(pair[0], pair[1]))
+        except:
+            scores.append(0.0)
     return (sum(scores) / (len(node_list1) * len(node_list2)))
 
 
@@ -37,16 +48,25 @@ def compare_sentences(sentence1, sentence2):
 def create_node_list(sentence1, sentence2, threshold=0.5):
     node_list1 = []
     node_list2 = []
-    average_rank1 = sum([graph_search.node_rank(word) for word in sentence1]) / len(sentence1)
-    average_rank2 = sum([graph_search.node_rank(word) for word in sentence2]) / len(sentence2)
+    sentence1 = sentence1.translate(string.maketrans("", ""), string.punctuation)
+    sentence2 = sentence2.translate(string.maketrans("", ""), string.punctuation)
+    average_rank1 = sum([node_rank(word) for word in sentence1.split()]) / len(sentence1)
+    average_rank2 = sum([node_rank(word) for word in sentence2.split()]) / len(sentence2)
+    STOPWORDS = generate_stopword_list('stopwords.txt')
 
-    for word in sentence1:
+    for word in sentence1.split():
+        word = word.lower()
         if word not in STOPWORDS:
-            if (graph_search.node_rank(word) / average_rank1) >= threshold:
+            if (node_rank(word) / average_rank1) >= threshold:
                 node_list1.append(word)
-    for word in sentence2:
+    for word in sentence2.split():
+        word = word.lower()
         if word not in STOPWORDS:
-            if (graph_search.node_rank(word) / average_rank2) >= threshold:
+            if (node_rank(word) / average_rank2) >= threshold:
                 node_list2.append(word)
 
     return node_list1, node_list2
+
+
+if __name__ == "__main__":
+    generate_score_table()

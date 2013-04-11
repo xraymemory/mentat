@@ -12,6 +12,8 @@ def get_similarity_score(start, end, max_path=3):
     edge_prox = 0.0
     if len(path) == 1:
         return 1
+    if len(path) == 0:
+        return 0
     for node in path:
         edge_weights += node.weight ** (1 / 2.0)
         edge_prox += node.score
@@ -62,6 +64,7 @@ def bfs(start, end, max_path=3):
             matching_term = ""
 
         if matching_term in end_node.cnet_edges:
+            path.append(end_node)
             return path
         for nodes in node.cnet_edges.iteritems():
             new_path = list(path)
@@ -80,7 +83,6 @@ def node_pagerank(cnet_node, damping_factor=0.85, max_iterations=100, min_delta=
     rank = 0.0
     neighbor_count = len(nodes)
     min_value = (1.0 - damping_factor) / neighbor_count
-    print min_value
     rank_dict = dict.fromkeys(nodes, 1.0 / neighbor_count)
 
     for i in xrange(max_iterations):
@@ -103,11 +105,19 @@ def node_pagerank(cnet_node, damping_factor=0.85, max_iterations=100, min_delta=
 
 
 def node_rank(cnet_node, damping_factor=0.85, rows=1000):
-    formated_name = '''"''' + cnet_node.node_name + '''"'''
-    node_request_string = "http://localhost:8983/solr/select/?q=endLemmaString:{0}&version=2.2&start=0&rows={1}&indent=on&wt={2}".format(formated_name, rows, "json")
-    activated_root_node = ConceptNetNode(cnet_node.node_name, request=node_request_string, degree='startLemmaString')
+    try:
+        formatted_name = '''"''' + cnet_node.node_name + '''"'''
+        node_name = cnet_node.node_name.lower()
+    except AttributeError:
+        formatted_name = '''"''' + cnet_node + '''"'''
+        node_name = cnet_node.lower()
+    node_request_string = "http://localhost:8983/solr/select/?q=endLemmaString:{0}&version=2.2&start=0&rows={1}&indent=on&wt={2}".format(formatted_name.lower(), rows, "json")
+    activated_root_node = ConceptNetNode(node_name, request=node_request_string, degree='startLemmaString')
     rank = 0.0
-    min_score = 1.0 / len(activated_root_node.edges)
+    try:
+        min_score = 1.0 / len(activated_root_node.edges)
+    except ZeroDivisionError:
+        return 1.0
     for node in activated_root_node.edges:
         node_name = '''"''' + node + '''"'''
         try:
