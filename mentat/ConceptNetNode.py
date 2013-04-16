@@ -22,7 +22,7 @@ class ConceptNetNode(object):
     features: a list of three identifiers for features, which are essentially assertions with one of their three components missing.
     surfaceText: the original natural language text that expressed this statement. '''
 
-    def __init__(self, node_name, request=None, convert=False, prox_score=0, degree=''):
+    def __init__(self, node_name, request=None, convert=False, prox_score=0, degree='', rows=100):
         self.node_name = node_name
         self.score = prox_score
         self.edges = []
@@ -33,7 +33,7 @@ class ConceptNetNode(object):
         if request != None:
             self.cnet_response = self.search_solr(request)
         else:
-            self.cnet_response = self.search_solr(self.build_request(self.node_name))
+            self.cnet_response = self.search_solr(self.build_request(self.node_name, rows=rows))
 
         if self.cnet_response != {}:
             self.edges = self.create_adjacency_list(self.cnet_response, degree=degree)
@@ -53,7 +53,7 @@ class ConceptNetNode(object):
         except:
             pass
 
-    def build_request(self, node_name, rows=1000, format="json"):
+    def build_request(self, node_name, rows=100, format="json"):
         formatted_name = node_name.replace('_', '+')
         formatted_name = '"' + formatted_name + '"'
         formatted_name = self._escape_name(formatted_name)

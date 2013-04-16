@@ -104,7 +104,7 @@ def node_pagerank(cnet_node, damping_factor=0.85, max_iterations=100, min_delta=
     return rank_dict
 
 
-def node_rank(cnet_node, damping_factor=0.85, rows=1000):
+def node_rank(cnet_node, damping_factor=0.85, rows=100):
     try:
         formatted_name = '''"''' + cnet_node.node_name + '''"'''
         node_name = cnet_node.node_name.lower()
