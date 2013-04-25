@@ -20,16 +20,39 @@ def read_sentences_from_file(sentence_file):
 
 
 def generate_score_table():
-    sentences = read_sentences_from_file(sys.argv[1])
+    nodes = read_sentences_from_file(sys.argv[1])
+    '''
     counter = 0
     for i in xrange(len(sentences)):
         #print "****************** \n"
         #print sentences[counter]
         #print sentences[counter+1]
         score = compare_sentences(sentences[counter], sentences[counter+1])
-        #print score
+        print score
         #print "*************************** \n"
         counter += 3
+    '''
+    score = 0
+    counter = 0
+    for node_pair in nodes:
+        node_pair = node_pair.translate(string.maketrans("", ""), string.punctuation)
+        node_pair = node_pair.split()
+        if node_pair != []:
+            score += compare_nodes(node_pair[0], node_pair[1])
+            counter += 1
+        if node_pair == []:
+            real_score = score / counter
+            print real_score
+            score = 0
+            counter = 0
+
+
+def compare_nodes(node1, node2):
+    try:
+        score = get_similarity_score(node1, node2)
+    except:
+        score = 0
+    return score
 
 
 def compare_sentences(sentence1, sentence2):
@@ -37,15 +60,12 @@ def compare_sentences(sentence1, sentence2):
     scores = []
     # generate permutations of nodes in list
     for pair in it.product(node_list1, node_list2):
-        '''
         try:
             scores.append(get_similarity_score(pair[0], pair[1]))
         except:
             scores.append(0.0)
     return (sum(scores) / (len(node_list1) * len(node_list2)))
-        '''
-        print pair[0] + ', ' + pair[1]
-    print '*'
+
 
 
 # gotta find a proper threshold, probably empirically

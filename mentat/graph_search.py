@@ -10,9 +10,13 @@ def get_similarity_score(start, end, max_path=3):
     path = bfs(start, end, max_path=max_path)
     edge_weights = 0.0
     edge_prox = 0.0
-    if len(path) == 1:
-        return 1
-    if len(path) == 0:
+    similarity_score = 0.0
+    try:
+        if len(path) == 1:
+            return 1
+        if len(path) == 0:
+            return 0
+    except:
         return 0
     for node in path:
         edge_weights += node.weight ** (1 / 2.0)
@@ -32,7 +36,7 @@ def get_sim_score_2(start, end, max_path=3):
     return similarity_score
 
 
-def bfs(start, end, max_path=3):
+def bfs(start, end, max_path=2):
     start_node = ConceptNetNode(start, convert=True)
     end_node = ConceptNetNode(end, convert=True)
     visited = []
@@ -42,11 +46,13 @@ def bfs(start, end, max_path=3):
     start_node.score = _inject_initial_proximity(start_node)
 
     if start == end:
-        return [start_node]
-
-    if end_node.startLemmaString in start_node.cnet_edges:
-        end_node.score = (start_node.score / len(start_node.edges)) * RETAIN_AMOUNT
-        return [start_node, end_node]
+        return [1]
+    try:
+        if end_node.startLemmaString in start_node.cnet_edges:
+            end_node.score = (start_node.score / len(start_node.edges)) * RETAIN_AMOUNT
+            return [start_node, end_node]
+    except:
+        return []
 
     while queue:
         path = queue.pop(0)
@@ -76,7 +82,7 @@ def bfs(start, end, max_path=3):
                 new_path.append(new_node)
                 queue.append(new_path)
 
-
+'''
 def node_pagerank(cnet_node, damping_factor=0.85, max_iterations=100, min_delta=0.00001):
     nodes = list(cnet_node.edges)
     nodes.append(cnet_node.node_name)
@@ -102,7 +108,7 @@ def node_pagerank(cnet_node, damping_factor=0.85, max_iterations=100, min_delta=
             break
 
     return rank_dict
-
+'''
 
 def node_rank(cnet_node, damping_factor=0.85, rows=100):
     try:

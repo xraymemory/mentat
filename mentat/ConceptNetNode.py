@@ -53,7 +53,7 @@ class ConceptNetNode(object):
         except:
             pass
 
-    def build_request(self, node_name, rows=100, format="json"):
+    def build_request(self, node_name, rows=50, format="json"):
         formatted_name = node_name.replace('_', '+')
         formatted_name = '"' + formatted_name + '"'
         formatted_name = self._escape_name(formatted_name)
